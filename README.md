@@ -20,4 +20,4 @@ Collection of projects and files
   - Examined the mathematics of popular option pricing models including Black-Scholes, Heston, Rough Heston, and Heston with Jumps.
   - Investigated strengths and weaknesses of each model
   - Investigated these models through various .py and MATLAB scripts
-  - Received very positive feedback on the submission from evaluating mathematics professors
+  - Received overwhelmingly positive feedback on the submission from evaluating mathematics professors
