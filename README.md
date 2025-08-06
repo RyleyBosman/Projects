@@ -16,7 +16,7 @@ Collection of projects and files
   - examined feature importance using xgb plot_importance
 
 * Option Pricing Senior Project:
-  - Created .pdf of group senior project
+  - Submitted as senior year group research project
   - Examined the mathematics of popular option pricing models including Black-Scholes, Heston, Rough Heston, and Heston with Jumps.
   - Investigated strengths and weaknesses of each model
   - Investigated these models through various .py and MATLAB scripts
