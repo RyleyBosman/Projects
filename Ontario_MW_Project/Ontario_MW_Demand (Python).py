@@ -1,4 +1,17 @@
 # %%
+import os
+import sys
+# Set the current working directory to the directory of this script
+if '__file__' in globals():
+    # Running as a .py script, changes working directory to the script's directory
+    os.chdir(os.path.dirname(os.path.abspath(__file__)))
+else:
+    # Running inside a notebook
+    os.chdir(os.getcwd())  # stays in notebook folder, no need for above if statement
+#Created as want to continuously export this notebook to a python script
+# and run it as a script, so need to set the working directory to the script
+
+# %%
 import pandas as pd
 import glob
 import datetime
@@ -75,7 +88,33 @@ holidays
 # FEATURE CREATION - TEMPERATURE
 
 # %%
+#Import Ontario Temperature data (pulled from https://climate-change.canada.ca/climate-data/#/daily-climate-data)
+#Scraped daily temperature readings from weather stations in and near hubs such as Toronto, Ottawa, Sudbury, Kenora, Sault Ste. Marie, etc.
 
+#Set path to these temperature data files, combine files into one dataframe
+path = "Ontario_Weather_Data"
+all_weather_files = glob.glob(path + "/*.csv")
+weather_dfs = []
+for files in all_weather_files:
+    df_3 = pd.read_csv(files, skiprows=1,usecols=[2,5,10], header=None)
+    #Columns used: Station Name, Date, Mean Temperature
+    df_3.columns = ["Station Name", "Date", "Mean Temperature"]
+    weather_dfs.append(df_3)
+weather_df = pd.concat(weather_dfs, ignore_index=True, axis=0)
+weather_df
+
+# %%
+#Within weather dataframe convert Date column to datetime format, set as index 
+weather_df['Date'] = pd.to_datetime(weather_df["Date"], errors='coerce')
+#weather_df = weather_df.set_index('Date')
+weather_df['Average Temperature'] = pd.to_numeric(weather_df['Mean Temperature'], errors='coerce')
+average_temp = weather_df.groupby(weather_df["Date"].dt.date)['Mean Temperature'].mean()
+
+average_temp = average_temp.reset_index()
+average_temp['Date'] = pd.to_datetime(average_temp['Date'], errors='coerce')
+average_temp.set_index('Date', inplace=True)
+
+#average_temp.to_csv("Ontario_Average_Temperature.csv")
 
 # %%
 #Train feature creation by breaking down hourly MW datetime index into time components
@@ -92,6 +131,10 @@ train['Quarter'] = train.index.quarter
 train['Holiday'] = train.index.date
 train['Holiday'] = train['Holiday'].isin(holidays.index.date).astype(bool)
 
+#Create average temperature feature by mapping the average temperature to the date index in train set
+train['Temperature'] = train.index.date
+train['Temperature'] = train.index.normalize().map(average_temp['Mean Temperature']).astype(float)
+
 #Test feature creation by breaking down hourly MW datetime index into time components
 test['Year'] = test.index.year
 test['Month'] = test.index.month
@@ -106,7 +149,11 @@ test['Quarter'] = test.index.quarter
 test['Holiday'] = test.index.date
 test['Holiday'] = test['Holiday'].isin(holidays.index.date).astype(bool)
 
-test.head(5000)
+#Create average temperature feature by mapping the average temperature to the date index in test set
+test['Temperature'] = test.index.date
+test['Temperature'] = test.index.normalize().map(average_temp['Mean Temperature']).astype(float)
+
+#train.to_csv("Ontario_MW_Train.csv")
 
 # %% [markdown]
 # TRAINING
@@ -115,10 +162,10 @@ test.head(5000)
 #Training XGBoost model
 
 #Assigning independent and dependent variables to dataframes
-train_features = train[['Year', 'Month', 'DayOfMonth', 'DayOfYear', 'Hour', 'DayOfWeek', 'WeekOfYear', 'Quarter', 'Holiday']]
+train_features = train[['Year', 'Month', 'DayOfMonth', 'DayOfYear', 'Hour', 'DayOfWeek', 'WeekOfYear', 'Quarter', 'Holiday', 'Temperature']]
 train_target = train['Ontario Demand']
 
-test_features = test[['Year', 'Month', 'DayOfMonth', 'DayOfYear', 'Hour', 'DayOfWeek', 'WeekOfYear', 'Quarter', 'Holiday']]
+test_features = test[['Year', 'Month', 'DayOfMonth', 'DayOfYear', 'Hour', 'DayOfWeek', 'WeekOfYear', 'Quarter', 'Holiday', 'Temperature']]
 test_target = test['Ontario Demand']
 
 # %%
