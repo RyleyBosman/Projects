@@ -1,15 +1,17 @@
 # %%
 import os
 import sys
+# If statement below allows for simple export of this notebook to a python script while keeping the associated .csv files in their respective folders.
+# Allows for .csv files to be called regardless of whether the script is run as a .py file or as a Jupyter notebook. 
+
 # Set the current working directory to the directory of this script
 if '__file__' in globals():
     # Running as a .py script, changes working directory to the script's directory
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
 else:
-    # Running inside a notebook
+    # If running as a notebook
     os.chdir(os.getcwd())  # stays in notebook folder, no need for above if statement
-#Created as want to continuously export this notebook to a python script
-# and run it as a script, so need to set the working directory to the script
+
 
 # %%
 import pandas as pd
