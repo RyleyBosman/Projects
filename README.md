@@ -13,6 +13,7 @@ Collection of projects and files
   - Plotted train, validation, and test data
   - Predicted next day BTC price using trained NN model
   - Prediction very innacurate ($103k USD prediction, current BTC value at $116k USD)
+  - ^with past 2 years vs. 10 years data next day predictions seem quite a bit more accurate
 
 * Ontario_MW_Project: Created as a learning experience using various resources and trial and error 
   - Imported historical hourly Ontario MW (electricity) demand data from IESO database (.csv)
